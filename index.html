@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar App ou Jogo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column; /* Altera a direção do flex para coluna */
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            margin-top: 20px; /* Margem superior para espaçamento */
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            flex-grow: 1; /* Permite que o formulário cresça para ocupar espaço */
+            display: flex;
+            flex-direction: column; /* Altera a direção do flex para coluna */
+        }
+
+        label {
+            margin-bottom: 5px;
+            display: block;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            form {
+                padding: 15px;
+            }
+
+            input[type="text"],
+            input[type="url"],
+            input[type="date"],
+            textarea {
+                font-size: 16px;
+            }
+
+            button {
+                font-size: 18px;
+            }
+        }
+    </style>
+    <script>
+        function sendToTelegram(event) {
+            event.preventDefault(); // Previne o envio padrão do formulário
+
+            // Captura os dados do formulário
+            const nomeApp = document.getElementById('nomeApp').value;
+            const descricao = document.getElementById('descricao').value;
+            const linkIcone = document.getElementById('linkIcone').value;
+            const linkApp = document.getElementById('linkApp').value;
+            const dataNascimento = document.getElementById('dataNascimento').value;
+
+            // Validação da data de nascimento para garantir que o usuário tenha mais de 18 anos
+            const hoje = new Date();
+            const nascimento = new Date(dataNascimento);
+            const idade = hoje.getFullYear() - nascimento.getFullYear();
+            const m = hoje.getMonth() - nascimento.getMonth();
+            if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+                idade--;
+            }
+
+            if (idade < 18) {
+                alert('Você deve ter pelo menos 18 anos para enviar um app ou jogo.');
+                return;
+            }
+
+            // Formatação da mensagem para o Telegram
+            const mensagem = `Novo app/jogo enviado:
+Nome: ${nomeApp}
+Descrição: ${descricao}
+Link do ícone: ${linkIcone}
+Link do app: ${linkApp}
+Data de nascimento: ${dataNascimento}`;
+
+            // Token do bot do Telegram e chat_id
+            const token = '7400593098:AAGE70dOvJgGB_PWZKkLLR4QUxru4tx3IOA'; // Substitua pelo seu token
+            const chat_id = '-1002497521778'; // Substitua pelo seu chat_id
+
+            // Envio da mensagem para o bot do Telegram via API
+            const url = `https://api.telegram.org/bot${token}/sendMessage`;
+            const data = {
+                chat_id: chat_id,
+                text: mensagem
+            };
+
+            // Requisição AJAX para enviar os dados
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    alert('App/jogo enviado com sucesso!');
+                } else {
+                    alert('Erro ao enviar o app/jogo.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao enviar o app/jogo.');
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Enviar App ou Jogo</h1>
+    <form onsubmit="sendToTelegram(event)">
+        <label for="nomeApp">Nome do App ou Jogo:</label>
+        <input type="text" id="nomeApp" name="nomeApp" required>
+
+        <label for="descricao">Descrição do App ou Jogo:</label>
+        <textarea id="descricao" name="descricao" required></textarea>
+
+        <label for="linkIcone">Link do Ícone do App ou Jogo:</label>
+        <input type="url" id="linkIcone" name="linkIcone" required>
+
+        <label for="linkApp">Link do App ou Jogo (Mediafire):</label>
+        <input type="url" id="linkApp" name="linkApp" required>
+
+        <label for="dataNascimento">Data de Nascimento (Permitido para maiores de 18 anos):</label>
+        <input type="date" id="dataNascimento" name="dataNascimento" required>
+
+        <button type="submit">Enviar</button>
+    </form>
+</body>
+</html>
